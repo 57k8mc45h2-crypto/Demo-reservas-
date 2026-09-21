@@ -278,7 +278,13 @@
   </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+const SUPABASE_URL = "TU_PROJECT_URL";
+const SUPABASE_KEY = "TU_PUBLISHABLE_KEY";
 
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
     const seatsContainer =
       document.getElementById("seats");
 
