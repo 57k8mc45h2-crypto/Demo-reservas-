@@ -336,21 +336,16 @@ const pruebaSupabase = window.supabase.createClient(
 
 pruebaSupabase
   .from("seats")
-  .select("seat_number")
-  .limit(1)
+  .select("seat_number, status")
+  .order("seat_number")
   .then(({ data, error }) => {
 
-    console.log("Resultado Supabase:", data, error);
-
     if (error) {
-      alert("Error de Supabase: " + error.message);
-    } else {
-      alert(
-        "Supabase conectado. Asiento encontrado: " +
-        data[0].seat_number
-      );
+      alert("Error cargando asientos: " + error.message);
+      return;
     }
 
+    console.log("Asientos desde Supabase:", data);
   });
 </script>
 
