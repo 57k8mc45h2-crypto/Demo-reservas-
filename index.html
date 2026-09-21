@@ -273,74 +273,50 @@
     </button>
 
   </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</div>
 
 <script>
-  alert("PRUEBA OK");
-const SUPABASE_URL = https://ewsopplkxoisbrhsojuu.supabase.co/rest/v1/;
-const SUPABASE_KEY = sb_publishable_PO2CY4KpTrf7CjamNbqutQ_VCS4wHox;
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+  const seatsContainer = document.getElementById("seats");
+  const selectedSeatText = document.getElementById("selectedSeat");
+  const reserveButton = document.getElementById("reserveButton");
 
-const seatsContainer = document.getElementById("seats");
-const selectedSeatText = document.getElementById("selectedSeat");
-const reserveButton = document.getElementById("reserveButton");
+  let selectedSeat = null;
 
-let selectedSeat = null;
+  for (let i = 1; i <= 50; i++) {
 
-async function loadSeats() {
-  seatsContainer.innerHTML = "Cargando asientos...";
-
-  const { data, error } = await supabaseClient
-    .from("seats")
-    .select("*")
-    .order("seat_number", { ascending: true });
-
-  if (error) {
-    console.error(error);
-    seatsContainer.innerHTML = "Error al cargar los asientos.";
-    return;
-  }
-
-  seatsContainer.innerHTML = "";
-
-  data.forEach(seat => {
     const button = document.createElement("button");
 
     button.className = "seat";
-    button.textContent = seat.seat_number;
-
-    if (seat.status !== "available") {
-      button.classList.add("reserved");
-      button.disabled = true;
-    }
+    button.textContent = i;
 
     button.onclick = function() {
-      if (button.classList.contains("reserved")) return;
 
-      document.querySelectorAll(".seat").forEach(s => {
-        s.classList.remove("selected");
+      if (button.classList.contains("reserved")) {
+        return;
+      }
+
+      document.querySelectorAll(".seat").forEach(seat => {
+        seat.classList.remove("selected");
       });
 
       button.classList.add("selected");
 
-      selectedSeat = seat;
+      selectedSeat = i;
 
       selectedSeatText.textContent =
-        "Asiento seleccionado: " + seat.seat_number;
+        "Asiento seleccionado: " + i;
 
       reserveButton.disabled = false;
+
     };
 
     seatsContainer.appendChild(button);
-  });
-}
 
-loadSeats();
-  alert("El JavaScript está funcionando");
+  }
+
 </script>
+
 </body>
 </html>
