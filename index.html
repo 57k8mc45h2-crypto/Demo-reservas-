@@ -297,6 +297,19 @@ const supabaseClient = window.supabase.createClient(
       document.getElementById("reserveButton");
 
     let selectedSeat = null;
+    async function cargarAsientos() {
+  const { data, error } = await supabaseClient
+    .from("seats")
+    .select("seat_number, status")
+    .order("seat_number", { ascending: true });
+
+  if (error) {
+    console.error("Error cargando asientos:", error);
+    return;
+  }
+
+  console.log("Asientos desde Supabase:", data);
+}
 
     for (let i = 1; i <= 50; i++) {
 
