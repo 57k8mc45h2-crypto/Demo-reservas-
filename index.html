@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -290,57 +291,35 @@
 
     let selectedSeat = null;
 
-pruebaSupabase
-  .from("seats")
-  .select("seat_number, status")
-  .order("seat_number")
-  .then(({ data, error }) => {
-
-    if (error) {
-      alert("Error cargando asientos: " + error.message);
-      return;
-    }
-
-    data.forEach(seat => {
+    for (let i = 1; i <= 50; i++) {
 
       const button =
         document.createElement("button");
 
       button.className = "seat";
 
-      button.textContent = seat.seat_number;
-
-      if (
-        seat.status === "pending" ||
-        seat.status === "confirmed"
-      ) {
-        button.classList.add("reserved");
-        button.disabled = true;
-      }
+      button.textContent = i;
 
       button.onclick = function() {
 
         document
           .querySelectorAll(".seat")
-          .forEach(seatButton => {
-            seatButton.classList.remove("selected");
+          .forEach(seat => {
+            seat.classList.remove("selected");
           });
 
         button.classList.add("selected");
 
-        selectedSeat = seat.seat_number;
+        selectedSeat = i;
 
         selectedSeatText.textContent =
-          "Asiento seleccionado: " + selectedSeat;
+          "Asiento seleccionado: " + i;
 
         reserveButton.disabled = false;
       };
 
       seatsContainer.appendChild(button);
-
-    });
-
-  });
+    }
 
   </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
