@@ -339,13 +339,19 @@ pruebaSupabase
   .select("seat_number")
   .limit(1)
   .then(({ data, error }) => {
+
     console.log("Resultado Supabase:", data, error);
+
+    if (error) {
+      alert("Error de Supabase: " + error.message);
+    } else {
+      alert(
+        "Supabase conectado. Asiento encontrado: " +
+        data[0].seat_number
+      );
+    }
+
   });
-  if (error) {
-  alert("Error de Supabase: " + error.message);
-} else {
-  alert("Supabase conectado. Asiento encontrado: " + data[0].seat_number);
-}
 </script>
 
 </body>
