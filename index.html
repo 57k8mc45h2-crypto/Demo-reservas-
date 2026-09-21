@@ -321,6 +321,27 @@
     }
 
   </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+console.log("Prueba Supabase");
+
+const SUPABASE_URL = https://ewsopplkxoisbrhsojuu.supabase.co/rest/v1/;
+const SUPABASE_KEY = sb_publishable_PO2CY4KpTrf7CjamNbqutQ_VCS4wHox;
+
+const pruebaSupabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+pruebaSupabase
+  .from("seats")
+  .select("seat_number")
+  .limit(1)
+  .then(({ data, error }) => {
+    console.log("Resultado Supabase:", data, error);
+  });
+</script>
 
 </body>
 </html>
