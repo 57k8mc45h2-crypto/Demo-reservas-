@@ -182,7 +182,6 @@
     }
 
     @media (max-width: 600px) {
-
       .seats {
         grid-template-columns: repeat(5, 1fr);
         gap: 7px;
@@ -202,131 +201,122 @@
 
 <body>
 
-  <header>
-    <h1>Noche de Gala Demo</h1>
-    <p>Reserva tu asiento de manera rápida y sencilla</p>
-  </header>
+<header>
+  <h1>Noche de Gala Demo</h1>
+  <p>Reserva tu asiento de manera rápida y sencilla</p>
+</header>
 
-  <div class="container">
+<div class="container">
 
-    <div class="event-info">
-      <h2>Evento Demo 2026</h2>
-      <p>📅 31 de octubre de 2026</p>
-      <p>🕗 20:00</p>
-      <div class="price">$25 por persona</div>
+  <div class="event-info">
+    <h2>Evento Demo 2026</h2>
+    <p>📅 31 de octubre de 2026</p>
+    <p>🕗 20:00</p>
+    <div class="price">$25 por persona</div>
+  </div>
+
+  <div class="stage">
+    ESCENARIO
+  </div>
+
+  <div class="legend">
+    <span>
+      <span class="dot available"></span>
+      Disponible
+    </span>
+
+    <span>
+      <span class="dot pending"></span>
+      Seleccionado
+    </span>
+
+    <span>
+      <span class="dot confirmed"></span>
+      Reservado
+    </span>
+  </div>
+
+  <div id="seats" class="seats"></div>
+
+  <div class="reservation-box">
+
+    <h2>Tu reserva</h2>
+
+    <div id="selectedSeat" class="selected-seat">
+      Selecciona un asiento
     </div>
 
-    <div class="stage">
-      ESCENARIO
-    </div>
+    <input
+      type="text"
+      id="firstName"
+      placeholder="Nombre"
+    >
 
-    <div class="legend">
-      <span>
-        <span class="dot available"></span>
-        Disponible
-      </span>
+    <input
+      type="text"
+      id="lastName"
+      placeholder="Apellido"
+    >
 
-      <span>
-        <span class="dot pending"></span>
-        Seleccionado
-      </span>
+    <input
+      type="tel"
+      id="phone"
+      placeholder="Teléfono"
+    >
 
-      <span>
-        <span class="dot confirmed"></span>
-        Reservado
-      </span>
-    </div>
-
-    <div id="seats" class="seats"></div>
-
-    <div class="reservation-box">
-
-      <h2>Tu reserva</h2>
-
-      <div id="selectedSeat" class="selected-seat">
-        Selecciona un asiento
-      </div>
-
-      <input
-        type="text"
-        id="firstName"
-        placeholder="Nombre"
-      >
-
-      <input
-        type="text"
-        id="lastName"
-        placeholder="Apellido"
-      >
-
-      <input
-        type="tel"
-        id="phone"
-        placeholder="Teléfono"
-      >
-
-      <button
-        id="reserveButton"
-        class="reserve-button"
-        disabled
-      >
-        Reservar asiento
-      </button>
-
-    </div>
+    <button
+      id="reserveButton"
+      class="reserve-button"
+      disabled
+    >
+      Reservar asiento
+    </button>
 
   </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-const SUPABASE_URL = "TU_PROJECT_URL";
-const SUPABASE_KEY = "TU_PUBLISHABLE_KEY";
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-    const seatsContainer =
-      document.getElementById("seats");
+</div>
 
-    const selectedSeatText =
-      document.getElementById("selectedSeat");
+<script>
 
-    const reserveButton =
-      document.getElementById("reserveButton");
+  const seatsContainer = document.getElementById("seats");
+  const selectedSeatText = document.getElementById("selectedSeat");
+  const reserveButton = document.getElementById("reserveButton");
 
-    let selectedSeat = null;
+  let selectedSeat = null;
 
-    for (let i = 1; i <= 50; i++) {
+  for (let i = 1; i <= 50; i++) {
 
-      const button =
-        document.createElement("button");
+    const button = document.createElement("button");
 
-      button.className = "seat";
+    button.className = "seat";
+    button.textContent = i;
 
-      button.textContent = i;
+    button.onclick = function() {
 
-      button.onclick = function() {
+      if (button.classList.contains("reserved")) {
+        return;
+      }
 
-        document
-          .querySelectorAll(".seat")
-          .forEach(seat => {
-            seat.classList.remove("selected");
-          });
+      document.querySelectorAll(".seat").forEach(seat => {
+        seat.classList.remove("selected");
+      });
 
-        button.classList.add("selected");
+      button.classList.add("selected");
 
-        selectedSeat = i;
+      selectedSeat = i;
 
-        selectedSeatText.textContent =
-          "Asiento seleccionado: " + i;
+      selectedSeatText.textContent =
+        "Asiento seleccionado: " + i;
 
-        reserveButton.disabled = false;
-      };
+      reserveButton.disabled = false;
 
-      seatsContainer.appendChild(button);
-    }
+    };
 
-  </script>
+    seatsContainer.appendChild(button);
+
+  }
+
+</script>
 
 </body>
 </html>
