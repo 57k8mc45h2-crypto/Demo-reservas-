@@ -274,8 +274,6 @@
       </button>
 
     </div>
-
-  </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -284,15 +282,13 @@ const SUPABASE_URL =
   "https://ewsopplkxoisbrhsojuu.supabase.co";
 
 const SUPABASE_KEY =
-  "sb_publishable_PO2CY4KpTrf7CjamNbqutQ_VCS4wHox";
-
+  "TU_MISMA_PUBLISHABLE_KEY";
 
 const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
   );
-
 
 const seatsContainer =
   document.getElementById("seats");
@@ -303,111 +299,241 @@ const selectedSeatText =
 const reserveButton =
   document.getElementById("reserveButton");
 
+const firstNameInput =
+  document.getElementById("firstName");
+
+const lastNameInput =
+  document.getElementById("lastName");
+
+const phoneInput =
+  document.getElementById("phone");
 
 let selectedSeat = null;
 
 
-// CARGAR ASIENTOS DESDE SUPABASE
+// CARGAR ASIENTOS
 
-supabaseClient
-  .from("seats")
-  .select("seat_number, status")
-  .order("seat_number")
-  .then(({ data, error }) => {
+async function cargarAsientos() {
 
-    if (error) {
-      console.error(
-        "Error cargando asientos:",
-        error
-      );
-      return;
+  const { data, error } =
+    await supabaseClient
+      .from("seats")
+      .select("id, seat_number, status")
+      .order("seat_number");
+
+  if (error) {
+    console.error(
+      "Error cargando asientos:",
+      error.message
+    );
+    return;
+  }
+
+  seatsContainer.innerHTML = "";
+
+  data.forEach(seat => {
+
+    const button =
+      document.createElement("button");
+
+    button.className = "seat";
+
+    button.textContent =
+      seat.seat_number;
+
+
+    if (seat.status === "pending") {
+      button.classList.add("pending");
+      button.disabled = true;
     }
 
 
-    data.forEach(seat => {
-
-      const button =
-        document.createElement("button");
-
-
-      button.className = "seat";
-
-      button.textContent =
-        seat.seat_number;
+    if (seat.status === "confirmed") {
+      button.classList.add("reserved");
+      button.disabled = true;
+    }
 
 
-      // ASIENTO PENDIENTE
-
-      if (seat.status === "pending") {
-
-        button.classList.add("pending");
-
-      }
-
-
-      // ASIENTO CONFIRMADO
-
-      if (seat.status === "confirmed") {
-
-        button.classList.add("reserved");
-
-        button.disabled = true;
-
-      }
-
-
-      // SELECCIONAR ASIENTO
+    if (seat.status === "available") {
 
       button.onclick = function() {
-
-        if (
-          seat.status === "pending" ||
-          seat.status === "confirmed"
-        ) {
-          return;
-        }
-
 
         document
           .querySelectorAll(".seat")
           .forEach(seatButton => {
-
-            seatButton.classList.remove(
-              "selected"
-            );
-
+            seatButton.classList.remove("selected");
           });
 
-
-        button.classList.add(
-          "selected"
-        );
-
+        button.classList.add("selected");
 
         selectedSeat =
           seat.seat_number;
-
 
         selectedSeatText.textContent =
           "Asiento seleccionado: " +
           selectedSeat;
 
-
-        reserveButton.disabled =
-          false;
-
+        reserveButton.disabled = false;
       };
 
+    }
 
-      seatsContainer.appendChild(
-        button
-      );
-
-    });
+    seatsContainer.appendChild(button);
 
   });
 
+}
+
+
+// RESERVAR ASIENTO
+
+reserveButton.onclick =
+  async function() {
+
+    if (!selectedSeat) {
+      alert("Selecciona un asiento.");
+      return;
+    }
+
+    const firstName =
+      firstNameInput.value.trim();
+
+    const lastName =
+      lastNameInput.value.trim();
+
+    const phone =
+      phoneInput.value.trim();
+
+
+    if (!firstName ||
+        !lastName ||
+        !phone) {
+
+      alert(
+        "Completa nombre, apellido y teléfono."
+      );
+
+      return;
+    }
+
+
+    reserveButton.disabled = true;
+
+    reserveButton.textContent =
+      "Guardando reserva...";
+
+
+    // BUSCAR EL ID DEL ASIENTO
+
+    const { data: seatData, error: seatError } =
+      await supabaseClient
+        .from("seats")
+        .select("id")
+        .eq("seat_number", selectedSeat)
+        .single();
+
+
+    if (seatError) {
+
+      alert(
+        "No se pudo encontrar el asiento."
+      );
+
+      reserveButton.disabled = false;
+
+      reserveButton.textContent =
+        "Reservar asiento";
+
+      return;
+    }
+
+
+    // BUSCAR EVENTO
+
+    const { data: eventData, error: eventError } =
+      await supabaseClient
+        .from("events")
+        .select("id")
+        .eq("name", "Noche de Gala Demo")
+        .single();
+
+
+    if (eventError) {
+
+      alert(
+        "No se pudo encontrar el evento."
+      );
+
+      reserveButton.disabled = false;
+
+      reserveButton.textContent =
+        "Reservar asiento";
+
+      return;
+    }
+
+
+    // CREAR RESERVA
+
+    const { data, error } =
+      await supabaseClient
+        .from("reservations")
+        .insert({
+          event_id: eventData.id,
+          seat_id: seatData.id,
+          first_name: firstName,
+          last_name: lastName,
+          phone: phone,
+          status: "pending"
+        })
+        .select();
+
+
+    if (error) {
+
+      console.error(error);
+
+      alert(
+        "No se pudo crear la reserva: " +
+        error.message
+      );
+
+      reserveButton.disabled = false;
+
+      reserveButton.textContent =
+        "Reservar asiento";
+
+      return;
+    }
+
+
+    alert(
+      "¡Reserva creada correctamente!"
+    );
+
+
+    firstNameInput.value = "";
+    lastNameInput.value = "";
+    phoneInput.value = "";
+
+    selectedSeat = null;
+
+    selectedSeatText.textContent =
+      "Selecciona un asiento";
+
+    reserveButton.textContent =
+      "Reservar asiento";
+
+    await cargarAsientos();
+
+  };
+
+
+cargarAsientos();
+
 </script>
+  </div>
+
   
 </body>
 </html>
