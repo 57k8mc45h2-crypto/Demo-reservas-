@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Panel de Administración</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    #loginButton {
+      width: 100%;
+      background: #111;
+      color: white;
+    }
+
+    #logoutButton {
+      background: #ddd;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .reservation {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 12px;
+    }
+
+    .confirm {
+      background: #22c55e;
+      color: white;
+    }
+
+    .cancel {
+      background: #ef4444;
+      color: white;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div id="loginSection">
+
+    <h1>Panel de Administración</h1>
+
+    <input
+      type="email"
+      id="email"
+      placeholder="Correo electrónico"
+    >
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Contraseña"
+    >
+
+    <button id="loginButton">
+      Iniciar sesión
+    </button>
+
+    <div id="loginMessage" class="message"></div>
+
+  </div>
+
+
+  <div id="adminSection" class="hidden">
+
+    <h1>Reservas</h1>
+
+    <button id="logoutButton">
+      Cerrar sesión
+    </button>
+
+    <div id="reservations"></div>
+
+  </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+  "https://ewsopplkxoisbrhsojuu.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_PO2CY4KpTrf7CjamNbqutQ_VCS4wHox";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+const loginSection =
+  document.getElementById("loginSection");
+
+const adminSection =
+  document.getElementById("adminSection");
+
+const loginButton =
+  document.getElementById("loginButton");
+
+const logoutButton =
+  document.getElementById("logoutButton");
+
+const loginMessage =
+  document.getElementById("loginMessage");
+
+const reservationsContainer =
+  document.getElementById("reservations");
+
+
+loginButton.onclick = async function() {
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  if (!email || !password) {
+
+    loginMessage.textContent =
+      "Ingresa correo y contraseña.";
+
+    return;
+  }
+
+  loginMessage.textContent =
+    "Iniciando sesión...";
+
+
+  const { data, error } =
+    await supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+
+  if (error) {
+
+    loginMessage.textContent =
+      "Error: " + error.message;
+
+    return;
+  }
+
+
+  loginSection.classList.add("hidden");
+  adminSection.classList.remove("hidden");
+
+  cargarReservas();
+};
+
+
+logoutButton.onclick = async function() {
+
+  await supabaseClient.auth.signOut();
+
+  adminSection.classList.add("hidden");
+  loginSection.classList.remove("hidden");
+};
+
+
+async function cargarReservas() {
+
+  reservationsContainer.innerHTML =
+    "<p>Cargando reservas...</p>";
+
+
+  const { data, error } =
+    await supabaseClient
+      .from("reservations")
+      .select(`
+        id,
+        first_name,
+        last_name,
+        phone,
+        status,
+        created_at,
+        seats (
+          seat_number
+        )
+      `)
+      .order("created_at", {
+        ascending: false
+      });
+
+
+  if (error) {
+
+    reservationsContainer.innerHTML =
+      "<p>Error cargando reservas: " +
+      error.message +
+      "</p>";
+
+    return;
+  }
+
+
+  if (!data || data.length === 0) {
+
+    reservationsContainer.innerHTML =
+      "<p>No hay reservas.</p>";
+
+    return;
+  }
+
+
+  reservationsContainer.innerHTML = "";
+
+
+  data.forEach(reservation => {
+
+    const div =
+      document.createElement("div");
+
+    div.className =
+      "reservation";
+
+
+    const seatNumber =
+      reservation.seats
+        ? reservation.seats.seat_number
+        : "—";
+
+
+    div.innerHTML = `
+
+      <strong>Asiento ${seatNumber}</strong>
+
+      <p>
+        ${reservation.first_name}
+        ${reservation.last_name}
+      </p>
+
+      <p>
+        Teléfono: ${reservation.phone}
+      </p>
+
+      <p>
+        Estado: ${reservation.status}
+      </p>
+
+    `;
+
+
+    reservationsContainer.appendChild(div);
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>
