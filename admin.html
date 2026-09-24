@@ -299,34 +299,109 @@ async function cargarReservas() {
 
     div.className =
       "reservation";
+div.innerHTML = `
+
+  <strong>Asiento ${seatNumber}</strong>
+
+  <p>
+    ${reservation.first_name}
+    ${reservation.last_name}
+  </p>
+
+  <p>
+    Teléfono: ${reservation.phone}
+  </p>
+
+  <p>
+    Estado: ${reservation.status}
+  </p>
+
+  ${
+    reservation.status === "pending"
+    ? `
+      <button class="confirm">
+        Confirmar pago
+      </button>
+
+      <button class="cancel">
+        Cancelar reserva
+      </button>
+    `
+    : ""
+  }
+
+`;
+
+    
 
 
-    div.innerHTML = `
-
-      <strong>Asiento ${seatNumber}</strong>
-
-      <p>
-        ${reservation.first_name}
-        ${reservation.last_name}
-      </p>
-
-      <p>
-        Teléfono: ${reservation.phone}
-      </p>
-
-      <p>
-        Estado: ${reservation.status}
-      </p>
-
-    `;
+reservationsContainer.appendChild(div);
 
 
-    reservationsContainer.appendChild(div);
+const confirmButton =
+  div.querySelector(".confirm");
+
+const cancelButton =
+  div.querySelector(".cancel");
+
+
+if (confirmButton) {
+
+  confirmButton.onclick = async function() {
+
+    const { error } =
+      await supabaseClient
+        .from("reservations")
+        .update({ status: "confirmed" })
+        .eq("id", reservation.id);
+
+    if (error) {
+      alert("Error: " + error.message);
+      return;
+    }
+
+    await supabaseClient
+      .from("seats")
+      .update({ status: "confirmed" })
+      .eq("id", reservation.seat_id);
+
+    cargarReservas();
+
+  };
+
+}
+
+
+if (cancelButton) {
+
+  cancelButton.onclick = async function() {
+
+    const { error } =
+      await supabaseClient
+        .from("reservations")
+        .update({ status: "cancelled" })
+        .eq("id", reservation.id);
+
+    if (error) {
+      alert("Error: " + error.message);
+      return;
+    }
+
+    await supabaseClient
+      .from("seats")
+      .update({ status: "available" })
+      .eq("id", reservation.seat_id);
+
+    cargarReservas();
+
+  };
+
+}
+
 
   }
 
 }
-
 </script>
 
 </body>
