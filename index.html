@@ -42,13 +42,18 @@
       padding: 30px 20px;
     }
 
-    .event-info {
+    .event-info,
+    .reservation-box,
+    .payment-box {
       background: white;
       border-radius: 15px;
-      padding: 20px;
+      padding: 25px;
       margin-bottom: 25px;
-      text-align: center;
       box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .event-info {
+      text-align: center;
     }
 
     .event-info h2 {
@@ -89,13 +94,19 @@
       color: white;
     }
 
-    .seat:hover {
+    .seat:hover:not(:disabled) {
       transform: scale(1.04);
     }
 
     .seat.selected {
       background: #f2b705;
       color: #111;
+    }
+
+    .seat.pending {
+      background: #f2b705;
+      color: #111;
+      cursor: not-allowed;
     }
 
     .seat.reserved {
@@ -137,15 +148,8 @@
       background: #d93636;
     }
 
-    .reservation-box {
-      background: white;
-      margin-top: 30px;
-      padding: 25px;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    }
-
-    .reservation-box h2 {
+    .reservation-box h2,
+    .payment-box h2 {
       margin-bottom: 15px;
     }
 
@@ -156,6 +160,12 @@
       border: 1px solid #ddd;
       border-radius: 8px;
       font-size: 16px;
+    }
+
+    .selected-seat {
+      margin-bottom: 15px;
+      font-weight: bold;
+      font-size: 18px;
     }
 
     .reserve-button {
@@ -175,10 +185,67 @@
       cursor: not-allowed;
     }
 
-    .selected-seat {
-      margin-bottom: 15px;
+    .payment-box {
+      display: none;
+    }
+
+    .payment-box.show {
+      display: block;
+    }
+
+    .payment-info {
+      background: #f7f7f7;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+
+    .payment-info strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .upload-label {
+      display: block;
+      margin-bottom: 8px;
       font-weight: bold;
-      font-size: 18px;
+    }
+
+    .upload-button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background: #111;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .upload-button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    .success-message {
+      display: none;
+      background: #e8f7ec;
+      border: 1px solid #39b54a;
+      padding: 18px;
+      border-radius: 10px;
+      margin-top: 15px;
+      line-height: 1.5;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .status-message {
+      margin-top: 15px;
+      font-weight: bold;
     }
 
     @media (max-width: 600px) {
@@ -202,93 +269,223 @@
 
 <body>
 
-  <header>
-    <h1>Noche de Gala Demo</h1>
-    <p>Reserva tu asiento de manera rápida y sencilla</p>
-  </header>
+<header>
+  <h1>Noche de Gala Demo</h1>
+  <p>Reserva tu asiento de manera rápida y sencilla</p>
+</header>
 
-  <div class="container">
 
-    <div class="event-info">
-      <h2>Evento Demo 2026</h2>
-      <p>📅 31 de octubre de 2026</p>
-      <p>🕗 20:00</p>
-      <div class="price">$25 por persona</div>
+<div class="container">
+
+  <div class="event-info">
+
+    <h2>Evento Demo 2026</h2>
+
+    <p>📅 31 de octubre de 2026</p>
+
+    <p>🕗 20:00</p>
+
+    <div class="price">
+      $25 por persona
     </div>
 
-    <div class="stage">
-      ESCENARIO
+  </div>
+
+
+  <div class="stage">
+    ESCENARIO
+  </div>
+
+
+  <div class="legend">
+
+    <span>
+      <span class="dot available"></span>
+      Disponible
+    </span>
+
+    <span>
+      <span class="dot pending"></span>
+      Pendiente
+    </span>
+
+    <span>
+      <span class="dot confirmed"></span>
+      Reservado
+    </span>
+
+  </div>
+
+
+  <div id="seats" class="seats"></div>
+
+
+  <div class="reservation-box">
+
+    <h2>Tu reserva</h2>
+
+    <div id="selectedSeat" class="selected-seat">
+      Selecciona un asiento
     </div>
 
-    <div class="legend">
-      <span>
-        <span class="dot available"></span>
-        Disponible
-      </span>
 
-      <span>
-        <span class="dot pending"></span>
-        Seleccionado
-      </span>
+    <input
+      type="text"
+      id="firstName"
+      placeholder="Nombre"
+    >
 
-      <span>
-        <span class="dot confirmed"></span>
-        Reservado
-      </span>
+
+    <input
+      type="text"
+      id="lastName"
+      placeholder="Apellido"
+    >
+
+
+    <input
+      type="tel"
+      id="phone"
+      placeholder="Teléfono"
+    >
+
+
+    <button
+      id="reserveButton"
+      class="reserve-button"
+      disabled
+    >
+      Reservar asiento
+    </button>
+
+    <div
+      id="reservationMessage"
+      class="status-message"
+    ></div>
+
+  </div>
+
+
+  <!-- PAGO -->
+
+  <div
+    id="paymentBox"
+    class="payment-box"
+  >
+
+    <h2>💳 Completa tu pago</h2>
+
+    <div class="payment-info">
+
+      <strong>
+        Tu asiento quedó reservado temporalmente.
+      </strong>
+
+      <p>
+        Asiento:
+        <span id="paymentSeat"></span>
+      </p>
+
+      <p>
+        Total:
+        <strong>$25</strong>
+      </p>
+
+      <br>
+
+      <strong>Datos para la transferencia</strong>
+
+      <p>
+        Banco: AQUÍ PONER BANCO
+      </p>
+
+      <p>
+        Cuenta: AQUÍ PONER NÚMERO DE CUENTA
+      </p>
+
+      <p>
+        Titular: AQUÍ PONER TITULAR
+      </p>
+
+      <p>
+        Cédula/RUC: AQUÍ PONER IDENTIFICACIÓN
+      </p>
+
     </div>
 
-    <div id="seats" class="seats"></div>
 
-    <div class="reservation-box">
+    <label
+      class="upload-label"
+      for="proofFile"
+    >
+      📷 Sube tu comprobante de pago
+    </label>
 
-      <h2>Tu reserva</h2>
 
-      <div id="selectedSeat" class="selected-seat">
-        Selecciona un asiento
-      </div>
+    <input
+      type="file"
+      id="proofFile"
+      accept="image/*,.pdf"
+    >
 
-      <input
-        type="text"
-        id="firstName"
-        placeholder="Nombre"
-      >
 
-      <input
-        type="text"
-        id="lastName"
-        placeholder="Apellido"
-      >
+    <button
+      id="uploadButton"
+      class="upload-button"
+    >
+      Enviar comprobante
+    </button>
 
-      <input
-        type="tel"
-        id="phone"
-        placeholder="Teléfono"
-      >
 
-      <button
-        id="reserveButton"
-        class="reserve-button"
-        disabled
-      >
-        Reservar asiento
-      </button>
+    <div
+      id="uploadMessage"
+      class="status-message"
+    ></div>
+
+
+    <div
+      id="successMessage"
+      class="success-message"
+    >
+
+      <strong>
+        ✅ ¡Comprobante enviado correctamente!
+      </strong>
+
+      <br><br>
+
+      Tu reserva quedó pendiente de confirmación.
+
+      <br>
+
+      Revisaremos tu comprobante y confirmaremos tu asiento.
 
     </div>
+
+  </div>
+
+</div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
 <script>
 
 const SUPABASE_URL =
   "https://ewsopplkxoisbrhsojuu.supabase.co";
 
+
 const SUPABASE_KEY =
   "sb_publishable_PO2CY4KpTrf7CjamNbqutQ_VCS4wHox";
+
 
 const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
   );
+
 
 const seatsContainer =
   document.getElementById("seats");
@@ -308,10 +505,38 @@ const lastNameInput =
 const phoneInput =
   document.getElementById("phone");
 
+const reservationMessage =
+  document.getElementById("reservationMessage");
+
+const paymentBox =
+  document.getElementById("paymentBox");
+
+const paymentSeat =
+  document.getElementById("paymentSeat");
+
+const proofFile =
+  document.getElementById("proofFile");
+
+const uploadButton =
+  document.getElementById("uploadButton");
+
+const uploadMessage =
+  document.getElementById("uploadMessage");
+
+const successMessage =
+  document.getElementById("successMessage");
+
+
 let selectedSeat = null;
 
+let currentReservationId = null;
 
+let currentSeatId = null;
+
+
+// ========================================
 // CARGAR ASIENTOS
+// ========================================
 
 async function cargarAsientos() {
 
@@ -321,38 +546,57 @@ async function cargarAsientos() {
       .select("id, seat_number, status")
       .order("seat_number");
 
+
   if (error) {
+
     console.error(
       "Error cargando asientos:",
       error.message
     );
+
     return;
   }
 
+
   seatsContainer.innerHTML = "";
+
 
   data.forEach(seat => {
 
     const button =
       document.createElement("button");
 
+
     button.className = "seat";
+
 
     button.textContent =
       seat.seat_number;
 
 
+    // PENDIENTE
+
     if (seat.status === "pending") {
+
       button.classList.add("pending");
+
       button.disabled = true;
+
     }
 
+
+    // CONFIRMADO
 
     if (seat.status === "confirmed") {
+
       button.classList.add("reserved");
+
       button.disabled = true;
+
     }
 
+
+    // DISPONIBLE
 
     if (seat.status === "available") {
 
@@ -361,22 +605,39 @@ async function cargarAsientos() {
         document
           .querySelectorAll(".seat")
           .forEach(seatButton => {
-            seatButton.classList.remove("selected");
+
+            seatButton.classList.remove(
+              "selected"
+            );
+
           });
 
-        button.classList.add("selected");
+
+        button.classList.add(
+          "selected"
+        );
+
 
         selectedSeat =
           seat.seat_number;
+
+
+        currentSeatId =
+          seat.id;
+
 
         selectedSeatText.textContent =
           "Asiento seleccionado: " +
           selectedSeat;
 
-        reserveButton.disabled = false;
+
+        reserveButton.disabled =
+          false;
+
       };
 
     }
+
 
     seatsContainer.appendChild(button);
 
@@ -385,76 +646,77 @@ async function cargarAsientos() {
 }
 
 
-// RESERVAR ASIENTO
+// ========================================
+// CREAR RESERVA
+// ========================================
 
 reserveButton.onclick =
   async function() {
 
+
     if (!selectedSeat) {
-      alert("Selecciona un asiento.");
+
+      alert(
+        "Selecciona un asiento."
+      );
+
       return;
+
     }
+
 
     const firstName =
       firstNameInput.value.trim();
 
+
     const lastName =
       lastNameInput.value.trim();
+
 
     const phone =
       phoneInput.value.trim();
 
 
-    if (!firstName ||
-        !lastName ||
-        !phone) {
+    if (
+      !firstName ||
+      !lastName ||
+      !phone
+    ) {
 
       alert(
         "Completa nombre, apellido y teléfono."
       );
 
       return;
+
     }
 
 
-    reserveButton.disabled = true;
+    reserveButton.disabled =
+      true;
+
 
     reserveButton.textContent =
-      "Guardando reserva...";
+      "Creando reserva...";
 
 
-    // BUSCAR EL ID DEL ASIENTO
-
-    const { data: seatData, error: seatError } =
-      await supabaseClient
-        .from("seats")
-        .select("id")
-        .eq("seat_number", selectedSeat)
-        .single();
-
-
-    if (seatError) {
-
-      alert(
-        "No se pudo encontrar el asiento."
-      );
-
-      reserveButton.disabled = false;
-
-      reserveButton.textContent =
-        "Reservar asiento";
-
-      return;
-    }
+    reservationMessage.textContent =
+      "";
 
 
     // BUSCAR EVENTO
 
-    const { data: eventData, error: eventError } =
+    const {
+      data: eventData,
+      error: eventError
+    } =
       await supabaseClient
         .from("events")
         .select("id")
-        .eq("name", "Noche de Gala Demo")
+        .eq(
+          "name",
+          "Noche de Gala Demo"
+        )
         .single();
 
 
@@ -464,76 +726,305 @@ reserveButton.onclick =
         "No se pudo encontrar el evento."
       );
 
-      reserveButton.disabled = false;
+      reserveButton.disabled =
+        false;
 
       reserveButton.textContent =
         "Reservar asiento";
 
       return;
+
     }
 
 
     // CREAR RESERVA
 
-    const { data, error } =
+    const {
+      data: reservation,
+      error: reservationError
+    } =
       await supabaseClient
         .from("reservations")
         .insert({
-          event_id: eventData.id,
-          seat_id: seatData.id,
-          first_name: firstName,
-          last_name: lastName,
-          phone: phone,
-          status: "pending"
+
+          event_id:
+            eventData.id,
+
+          seat_id:
+            currentSeatId,
+
+          first_name:
+            firstName,
+
+          last_name:
+            lastName,
+
+          phone:
+            phone,
+
+          status:
+            "pending"
+
         })
-        
+        .select("id")
+        .single();
 
 
-    if (error) {
+    if (reservationError) {
 
-      console.error(error);
+      console.error(
+        reservationError
+      );
+
 
       alert(
         "No se pudo crear la reserva: " +
-        error.message
+        reservationError.message
       );
 
-      reserveButton.disabled = false;
+
+      reserveButton.disabled =
+        false;
 
       reserveButton.textContent =
         "Reservar asiento";
 
       return;
+
     }
 
 
-    alert(
-      "¡Reserva creada correctamente!"
+    // GUARDAR ID DE RESERVA
+
+    currentReservationId =
+      reservation.id;
+
+
+    // MOSTRAR PAGO
+
+    paymentSeat.textContent =
+      selectedSeat;
+
+
+    paymentBox.classList.add(
+      "show"
     );
 
 
-    firstNameInput.value = "";
-    lastNameInput.value = "";
-    phoneInput.value = "";
+    reservationMessage.textContent =
+      "Reserva creada. Ahora envía tu comprobante de pago.";
 
-    selectedSeat = null;
-
-    selectedSeatText.textContent =
-      "Selecciona un asiento";
 
     reserveButton.textContent =
-      "Reservar asiento";
+      "Reserva creada";
+
+
+    // ACTUALIZAR VISUALMENTE
 
     await cargarAsientos();
+
+
+    // LLEVAR AL USUARIO AL PAGO
+
+    paymentBox.scrollIntoView({
+      behavior: "smooth"
+    });
 
   };
 
 
+// ========================================
+// SUBIR COMPROBANTE
+// ========================================
+
+uploadButton.onclick =
+  async function() {
+
+
+    if (!currentReservationId) {
+
+      alert(
+        "Primero debes crear una reserva."
+      );
+
+      return;
+
+    }
+
+
+    const file =
+      proofFile.files[0];
+
+
+    if (!file) {
+
+      alert(
+        "Selecciona primero tu comprobante."
+      );
+
+      return;
+
+    }
+
+
+    // LIMITE 5 MB
+
+    if (
+      file.size >
+      5 * 1024 * 1024
+    ) {
+
+      alert(
+        "El comprobante no puede superar 5 MB."
+      );
+
+      return;
+
+    }
+
+
+    uploadButton.disabled =
+      true;
+
+
+    uploadButton.textContent =
+      "Subiendo comprobante...";
+
+
+    uploadMessage.textContent =
+      "";
+
+
+    // NOMBRE ÚNICO
+
+    const extension =
+      file.name
+        .split(".")
+        .pop()
+        .toLowerCase();
+
+
+    const filePath =
+      currentReservationId +
+      "_" +
+      Date.now() +
+      "." +
+      extension;
+
+
+    // SUBIR ARCHIVO
+
+    const {
+      error: uploadError
+    } =
+      await supabaseClient
+        .storage
+        .from("comprobantes")
+        .upload(
+          filePath,
+          file,
+          {
+            upsert: false
+          }
+        );
+
+
+    if (uploadError) {
+
+      console.error(
+        uploadError
+      );
+
+
+      uploadMessage.textContent =
+        "No se pudo subir el comprobante: " +
+        uploadError.message;
+
+
+      uploadButton.disabled =
+        false;
+
+      uploadButton.textContent =
+        "Enviar comprobante";
+
+      return;
+
+    }
+
+
+    // GUARDAR REFERENCIA EN RESERVA
+
+    const {
+      error: rpcError
+    } =
+      await supabaseClient
+        .rpc(
+          "guardar_comprobante",
+          {
+            p_reservation_id:
+              currentReservationId,
+
+            p_proof_path:
+              filePath
+          }
+        );
+
+
+    if (rpcError) {
+
+      console.error(
+        rpcError
+      );
+
+
+      uploadMessage.textContent =
+        "El archivo se subió, pero no se pudo asociar a la reserva: " +
+        rpcError.message;
+
+
+      uploadButton.disabled =
+        false;
+
+      uploadButton.textContent =
+        "Enviar comprobante";
+
+      return;
+
+    }
+
+
+    // ÉXITO
+
+    uploadButton.disabled =
+      true;
+
+
+    uploadButton.textContent =
+      "Comprobante enviado";
+
+
+    successMessage.classList.add(
+      "show"
+    );
+
+
+    proofFile.disabled =
+      true;
+
+
+    uploadMessage.textContent =
+      "";
+
+  };
+
+
+// ========================================
+// INICIO
+// ========================================
+
 cargarAsientos();
 
 </script>
-  </div>
 
-  
 </body>
 </html>
