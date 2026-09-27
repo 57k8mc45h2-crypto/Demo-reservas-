@@ -244,13 +244,14 @@ async function cargarReservas() {
     await supabaseClient
       .from("reservations")
       .select(`
-        id,
-        first_name,
-        last_name,
-        phone,
-        status,
-        created_at,
-        seat_id
+id,
+first_name,
+last_name,
+phone,
+status,
+created_at,
+seat_id,
+proof_path
       `)
       .order("created_at", {
         ascending: false
