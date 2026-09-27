@@ -357,7 +357,35 @@ const confirmButton =
 const cancelButton =
   div.querySelector(".cancel");
 
+const proofButton =
+  div.querySelector(".proof");
 
+if (proofButton) {
+  proofButton.onclick = async function() {
+
+    const { data, error } =
+      await supabaseClient
+        .storage
+        .from("comprobantes")
+        .createSignedUrl(
+          reservation.proof_path,
+          300
+        );
+
+    if (error) {
+      alert(
+        "Error abriendo comprobante: " +
+        error.message
+      );
+      return;
+    }
+
+    window.open(
+      data.signedUrl,
+      "_blank"
+    );
+  };
+}
 if (confirmButton) {
 
   confirmButton.onclick = async function() {
