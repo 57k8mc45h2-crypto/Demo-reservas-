@@ -739,37 +739,36 @@ reserveButton.onclick =
 
     // CREAR RESERVA
 
-    const {
-      data: reservation,
-      error: reservationError
-    } =
-      await supabaseClient
-        .from("reservations")
-        .insert({
+    const reservationId =
+  crypto.randomUUID();
 
-          event_id:
-            eventData.id,
+const { error: reservationError } =
+  await supabaseClient
+    .from("reservations")
+    .insert({
 
-          seat_id:
-            currentSeatId,
+      id:
+        reservationId,
 
-          first_name:
-            firstName,
+      event_id:
+        eventData.id,
 
-          last_name:
-            lastName,
+      seat_id:
+        currentSeatId,
 
-          phone:
-            phone,
+      first_name:
+        firstName,
 
-          status:
-            "pending"
+      last_name:
+        lastName,
 
-        })
-        .select("id")
-        .single();
+      phone:
+        phone,
 
+      status:
+        "pending"
 
+    });
     if (reservationError) {
 
       console.error(
@@ -797,7 +796,7 @@ reserveButton.onclick =
     // GUARDAR ID DE RESERVA
 
     currentReservationId =
-      reservation.id;
+  reservationId;
 
 
     // MOSTRAR PAGO
