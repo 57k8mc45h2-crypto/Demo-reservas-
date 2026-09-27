@@ -317,19 +317,31 @@ div.innerHTML = `
     Estado: ${reservation.status}
   </p>
 
-  ${
-    reservation.status === "pending"
-    ? `
-      <button class="confirm">
-        Confirmar pago
-      </button>
+${
+  reservation.status === "pending"
+  ? `
+    ${
+      reservation.proof_path
+      ? `
+        <button class="proof">
+          Ver comprobante
+        </button>
+      `
+      : `
+        <p>Sin comprobante</p>
+      `
+    }
 
-      <button class="cancel">
-        Cancelar reserva
-      </button>
-    `
-    : ""
-  }
+    <button class="confirm">
+      Confirmar pago
+    </button>
+
+    <button class="cancel">
+      Cancelar reserva
+    </button>
+  `
+  : ""
+}
 
 `;
 
