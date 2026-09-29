@@ -706,19 +706,19 @@ reserveButton.onclick =
 
     // BUSCAR EVENTO
 
-    const {
-      data: eventData,
-      error: eventError
-    } =
-      await supabaseClient
-        .from("events")
-        .select("id")
-        .eq(
-          "name",
-          "Noche de Gala Demo"
-        )
-        .single();
-
+const {
+  data: eventData,
+  error: eventError
+} =
+  await supabaseClient
+    .from("events")
+    .select("id")
+    .eq(
+      "name",
+      "Noche de Gala Demo"
+    )
+    .limit(1)
+    .maybeSingle();
 
     if (eventError) {
 
